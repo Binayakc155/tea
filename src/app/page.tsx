@@ -1,65 +1,380 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Moon, Sun } from 'lucide-react'; // Add this import for theme icons (install lucide-react if needed)
 
 export default function Home() {
+
+  // Theme state
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Load theme from localStorage or system preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme as 'light' | 'dark');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+  }, []);
+
+  // Apply theme class to html root
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  // Tea count from localStorage
+  const [teaCount, setTeaCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('teaCount');
+      return saved ? parseInt(saved, 10) : 0;
+    }
+    return 0;
+  });
+
+  // Recent supporters
+  const [recentSupporters, setRecentSupporters] = useState<Array<{
+    name: string;
+    quantity: number;
+    time: string;
+  }>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('recentSupporters');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  // Form state
+  const [quantity, setQuantity] = useState(1);
+  const [senderName, setSenderName] = useState('');
+  const [message, setMessage] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState(false);
+
+  const basePrice = 50;
+  const totalPrice = quantity * basePrice;
+
+  const handleBuyTea = async () => {
+    if (!isAnonymous && senderName.trim() === '') {
+      setNameError(true);
+      alert('Please enter your name or check "Make me anonymous"');
+      return;
+    }
+    setNameError(false);
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/esewa-pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity }),
+      });
+
+      if (!res.ok) throw new Error('API error');
+
+      const data = await res.json();
+
+      localStorage.setItem('lastPurchase', JSON.stringify({
+        quantity,
+        name: isAnonymous ? 'Anonymous' : senderName.trim() || 'Someone',
+        message: message.trim(),
+      }));
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== 'quantity') {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value as string;
+          form.appendChild(input);
+        }
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+    } catch (err) {
+      console.error(err);
+      alert('Payment failed to start');
+      setLoading(false);
+    }
+  };
+
+  // Update count and supporters on success redirect
+  useEffect(() => {
+    const pending = localStorage.getItem('lastPurchase');
+    if (pending) {
+      const purchase = JSON.parse(pending);
+      const newCount = teaCount + purchase.quantity;
+      localStorage.setItem('teaCount', newCount.toString());
+      setTeaCount(newCount);
+
+      const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const newSupporter = {
+        name: purchase.name,
+        quantity: purchase.quantity,
+        time,
+      };
+
+      const updated = [newSupporter, ...recentSupporters].slice(0, 10);
+      setRecentSupporters(updated);
+      localStorage.setItem('recentSupporters', JSON.stringify(updated));
+      localStorage.removeItem('lastPurchase');
+    }
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+
+      {/* Top Navbar */}
+      <nav className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+
+          {/* Logo */}
+          <div className="flex items-center gap-2 font-bold text-gray-900 dark:text-gray-100">
+            <span className="text-xl">☕</span>
+            <span>Buy-Tea</span>
+          </div>
+
+          {/* Theme Toggle + Login */}
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={toggleTheme}
+              className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              {theme === 'light' ? <Moon className="w-5 h-5 text-gray-700" /> : <Sun className="w-5 h-5 text-gray-300" />}
+            </button>
+            <button className="text-sm font-medium border px-4 py-1.5 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600">
+              Log in
+            </button>
+          </div>
+
+        </div>
+      </nav>
+
+
+      {/* Cover */}
+      <div
+        className="h-40 bg-cover bg-center"
+        style={{ backgroundImage: "url('/cover.jpg')" }}
+      >
+        <div className="h-full w-full bg-black/30" />
+      </div>
+
+      {/* Profile strip */}
+      <div className="bg-gray-100 dark:bg-gray-800">
+  <div className="px-6 relative">
+    <div className="flex items-center gap-4 -mt-16 pb-6 h-16"> {/* Container height fixed */}
+
+      {/* Profile Image */}
+      <div className="relative w-36 h-36 flex-shrink-0"> {/* Fixed image size */}
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+          src="/profilee.jpg"
+          alt="Binaya KC"
+          fill
+          className="rounded-full object-cover border-4 border-white dark:border-gray-900 shadow-md"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      </div>
+
+      {/* Name & bio */}
+      <div>
+        <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+          Binaya K.C. <span className="text-blue-500"></span>
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400"></p>
+      </div>
+
+      {/* Social icons */}
+      <div className="ml-auto flex gap-4 text-gray-500 dark:text-gray-400 text-lg">
+  <a
+    href="https://www.facebook.com/binaya.kc.315"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-blue-600 dark:hover:text-blue-400"
+  >
+    ❤️
+  </a>
+
+  <a
+    href="https://x.com/YrWNIQdzcbMDKU7"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="m-0 social-icone si-small h-bg-x-twitter"
+    
+  >
+    😂
+     <i className="fa-brands bi-globe"></i>
+    <i className="fa-brands bi-globe"></i>
+  </a>
+
+  <a
+    href="https://www.linkedin.com/in/binaya-kc-748647350"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-blue-700 dark:hover:text-blue-500"
+  >
+    💼
+  </a>
+</div>
+
+    </div>
+  </div>
+</div>
+
+
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="grid md:grid-cols-3 gap-10">
+
+          {/* Left column */}
+          <div className="mt-6 space-y-6">
+
+            <Card className="bg-white dark:bg-gray-800">
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">About</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">CS student </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white dark:bg-gray-800">
+              <CardHeader className="text-center">
+                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">Recent supports</h2>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {recentSupporters.length === 0 ? (
+                  <p className="text-center text-gray-500 dark:text-gray-400 text-sm">No supports yet</p>
+                ) : (
+                  recentSupporters.map((sup, i) => (
+                    <p key={i} className="text-sm text-gray-600 dark:text-gray-300">
+                      ☕ {sup.name} bought {sup.quantity}
+                    </p>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+
+          </div>
+
+          {/* Right column */}
+          <div className="md:col-span-2">
+            <Card className="shadow-xl bg-white dark:bg-gray-800">
+              <CardHeader className="text-center">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+                  Buy tea for Binaya k.c. ☕
+                </h2>
+              </CardHeader>
+
+              <CardContent className="space-y-8">
+
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8">
+                  <div className="flex items-center justify-center gap-8">
+                    <div className="text-6xl">☕</div>
+                    <div className="text-4xl font-bold text-gray-500 dark:text-gray-400">×</div>
+
+                    <ToggleGroup
+                      type="single"
+                      value={quantity.toString()}
+                      onValueChange={(v) => v && setQuantity(parseInt(v))}
+                      className="gap-4"
+                    >
+                      {[1, 2, 5, 10].map((num) => (
+                        <ToggleGroupItem
+                          key={num}
+                          value={num.toString()}
+                          className="w-16 h-16 rounded-full text-xl font-bold border-2 data-[state=on]:bg-[#60BB46] data-[state=on]:text-white dark:border-gray-600"
+                        >
+                          {num}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+
+                  <div className="flex items-center justify-end gap-2">
+                    <Checkbox
+                      id="anonymous"
+                      checked={isAnonymous}
+                      onCheckedChange={(c) => {
+                        setIsAnonymous(c as boolean);
+                        if (c) setNameError(false);
+                      }}
+                      className="dark:border-gray-600"
+                    />
+                    < Label htmlFor="anonymous" className="text-gray-700 dark:text-gray-300">Make me anonymous</Label>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 dark:text-gray-300">
+                      Full Name {!isAnonymous && <span className="text-red-500">*</span>}
+                    </Label>
+                    <Input
+                      placeholder="Full Name"
+                      value={senderName}
+                      onChange={(e) => {
+                        setSenderName(e.target.value);
+                        setNameError(false);
+                      }}
+                      disabled={isAnonymous}
+                      className={`${nameError ? 'border-red-500' : ''} dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600`}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 dark:text-gray-300">Message for creator</Label>
+                    <Input
+                      placeholder="Say something nice..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                    />
+                  </div>
+
+                  <Button
+                    size="lg"
+                    onClick={handleBuyTea}
+                    disabled={loading}
+                    className="w-full py-6 text-xl font-bold bg-[#60BB46] hover:bg-[#4e9a38]"
+                  >
+                    {loading ? 'Processing...' : `Pay Rs ${totalPrice}`}
+                  </Button>
+
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
