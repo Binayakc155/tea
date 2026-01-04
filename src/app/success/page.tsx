@@ -1,22 +1,41 @@
 'use client';
 
 import { useEffect } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useRouter } from 'next/navigation';
+import { supabaseClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default function Success() {
+  const router = useRouter();
+
   useEffect(() => {
-    // Increase tea count by 1 when success page loads
-    const currentCount = parseInt(localStorage.getItem('teaCount') || '0');
-    const newCount = currentCount + 1;
-    localStorage.setItem('teaCount', newCount.toString());
+    const saveDonation = async () => {
+      const pending = localStorage.getItem('lastPurchase');
+      if (!pending) return;
+
+      const purchase = JSON.parse(pending);
+
+      const { error } = await supabaseClient.from('donations').insert({
+        quantity: purchase.quantity,
+        name: purchase.name,
+        message: purchase.message || null,
+        amount: purchase.quantity * 50 , // Rs to paisa
+      });
+
+      if (error) {
+        console.error('Failed to save donation:', error);
+        // Optional: show error to user
+      } else {
+        console.log('Donation saved successfully!');
+      }
+
+      // Clean up
+      localStorage.removeItem('lastPurchase');
+    };
+
+    saveDonation();
   }, []);
 
   return (

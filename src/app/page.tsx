@@ -13,8 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Moon, Sun } from 'lucide-react'; // Add this import for theme icons (install lucide-react if needed)
+import { supabaseClient } from '@/lib/supabase/client'; // Add this import!
+import Link from 'next/link';
 
 export default function Home() {
+
 
   // Theme state
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -45,27 +48,15 @@ export default function Home() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  // Tea count from localStorage
-  const [teaCount, setTeaCount] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('teaCount');
-      return saved ? parseInt(saved, 10) : 0;
-    }
-    return 0;
-  });
+  // Tea count from Supabase
+  const [teaCount, setTeaCount] = useState<number>(0);
 
-  // Recent supporters
+  // Recent supporters from Supabase
   const [recentSupporters, setRecentSupporters] = useState<Array<{
     name: string;
     quantity: number;
     time: string;
-  }>>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('recentSupporters');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
+  }>>([]);
 
   // Form state
   const [quantity, setQuantity] = useState(1);
@@ -77,6 +68,42 @@ export default function Home() {
 
   const basePrice = 50;
   const totalPrice = quantity * basePrice;
+
+  // Fetch tea count and recent supporters from Supabase on load
+  useEffect(() => {
+    async function fetchData() {
+      // Fetch total tea count (sum of quantity)
+      const { data: donationsData, error: countError } = await supabaseClient
+        .from('donations')
+        .select('quantity');
+
+      if (countError) {
+        console.error('Error fetching tea count:', countError);
+      } else {
+        const total = donationsData.reduce((sum, d) => sum + d.quantity, 0);
+        setTeaCount(total);
+      }
+
+      // Fetch recent supporters (latest 10)
+      const { data: supportersData, error: supportersError } = await supabaseClient
+        .from('donations')
+        .select('name, quantity, created_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (supportersError) {
+        console.error('Error fetching recent supporters:', supportersError);
+      } else {
+        const formattedSupporters = supportersData.map(sup => ({
+          name: sup.name,
+          quantity: sup.quantity,
+          time: new Date(sup.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+        }));
+        setRecentSupporters(formattedSupporters);
+      }
+    }
+    fetchData();
+  }, []);
 
   const handleBuyTea = async () => {
     if (!isAnonymous && senderName.trim() === '') {
@@ -133,7 +160,6 @@ export default function Home() {
     if (pending) {
       const purchase = JSON.parse(pending);
       const newCount = teaCount + purchase.quantity;
-      localStorage.setItem('teaCount', newCount.toString());
       setTeaCount(newCount);
 
       const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -142,10 +168,9 @@ export default function Home() {
         quantity: purchase.quantity,
         time,
       };
-
       const updated = [newSupporter, ...recentSupporters].slice(0, 10);
       setRecentSupporters(updated);
-      localStorage.setItem('recentSupporters', JSON.stringify(updated));
+
       localStorage.removeItem('lastPurchase');
     }
   }, []);
@@ -165,15 +190,18 @@ export default function Home() {
 
           {/* Theme Toggle + Login */}
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={toggleTheme}
               className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               {theme === 'light' ? <Moon className="w-5 h-5 text-gray-700" /> : <Sun className="w-5 h-5 text-gray-300" />}
             </button>
-            <button className="text-sm font-medium border px-4 py-1.5 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600">
-              Log in
-            </button>
+
+            <Link href="/admin/login">
+              <button className="text-sm font-medium border px-4 py-1.5 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600">
+                Admin Login
+              </button>
+            </Link>
           </div>
 
         </div>
@@ -190,63 +218,63 @@ export default function Home() {
 
       {/* Profile strip */}
       <div className="bg-gray-100 dark:bg-gray-800">
-  <div className="px-6 relative">
-    <div className="flex items-center gap-4 -mt-16 pb-6 h-16"> {/* Container height fixed */}
+        <div className="px-6 relative">
+          <div className="flex items-center gap-4 -mt-16 pb-6 h-16"> {/* Container height fixed */}
 
-      {/* Profile Image */}
-      <div className="relative w-36 h-36 flex-shrink-0"> {/* Fixed image size */}
-        <Image
-          src="/profilee.jpg"
-          alt="Binaya KC"
-          fill
-          className="rounded-full object-cover border-4 border-white dark:border-gray-900 shadow-md"
-        />
+            {/* Profile Image */}
+            <div className="relative w-36 h-36 flex-shrink-0"> {/* Fixed image size */}
+              <Image
+                src="/profilee.jpg"
+                alt="Binaya KC"
+                fill
+                className="rounded-full object-cover border-4 border-white dark:border-gray-900 shadow-md"
+              />
+            </div>
+
+            {/* Name & bio */}
+            <div>
+              <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                Binaya K.C. <span className="text-blue-500"></span>
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400"></p>
+            </div>
+
+            {/* Social icons */}
+            <div className="ml-auto flex gap-4 text-gray-500 dark:text-gray-400 text-lg">
+              <a
+                href="https://www.facebook.com/binaya.kc.315"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                ❤️
+              </a>
+
+              <a
+                href="https://x.com/YrWNIQdzcbMDKU7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="m-0 social-icone si-small h-bg-x-twitter"
+
+              >
+                😂
+                <i className="fa-brands bi-globe"></i>
+                <i className="fa-brands bi-globe"></i>
+              </a>
+
+              <a
+                href="https://www.linkedin.com/in/binaya-kc-748647350"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-700 dark:hover:text-blue-500"
+              >
+                💼
+              </a>
+            </div>
+
+          </div>
+        </div>
       </div>
-
-      {/* Name & bio */}
-      <div>
-        <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
-          Binaya K.C. <span className="text-blue-500"></span>
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400"></p>
-      </div>
-
-      {/* Social icons */}
-      <div className="ml-auto flex gap-4 text-gray-500 dark:text-gray-400 text-lg">
-  <a
-    href="https://www.facebook.com/binaya.kc.315"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hover:text-blue-600 dark:hover:text-blue-400"
-  >
-    ❤️
-  </a>
-
-  <a
-    href="https://x.com/YrWNIQdzcbMDKU7"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="m-0 social-icone si-small h-bg-x-twitter"
-    
-  >
-    😂
-     <i className="fa-brands bi-globe"></i>
-    <i className="fa-brands bi-globe"></i>
-  </a>
-
-  <a
-    href="https://www.linkedin.com/in/binaya-kc-748647350"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hover:text-blue-700 dark:hover:text-blue-500"
-  >
-    💼
-  </a>
-</div>
-
-    </div>
-  </div>
-</div>
 
 
 
