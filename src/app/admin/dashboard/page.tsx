@@ -2,6 +2,9 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
+
+
+
 export default async function AdminDashboard() {
   const supabase = await createServerSupabaseClient();
 
@@ -17,7 +20,7 @@ export default async function AdminDashboard() {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-500 p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="bg-white rounded-lg shadow p-8">
           <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
@@ -26,7 +29,7 @@ export default async function AdminDashboard() {
           {/* Edit Profile with File Upload */}
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Edit Profile</h2>
-            <form action="/api/admin/update-profile" method="post" encType="multipart/form-data" className="space-y-6 max-w-2xl">
+            <form  action="/api/admin/update-profile"method="POST" encType="multipart/form-data" className="space-y-6 max-w-2xl">
               <div>
                 <label className="block font-medium mb-2">Name <span className="text-red-500">*</span></label>
                 <input name="name" defaultValue={profile?.name} className="w-full p-3 border rounded" required />
