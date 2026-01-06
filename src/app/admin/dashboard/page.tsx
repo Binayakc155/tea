@@ -1,23 +1,21 @@
 // src/app/admin/dashboard/page.tsx
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-
-
-
+import ProfileForm from './ProfileForm'; // We'll create this client component next
 
 export default async function AdminDashboard() {
   const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/admin/login');
+  // 1️⃣ Get user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/admin/login'); // redirect if not logged in
 
-  // Fetch current data
+  // 2️⃣ Fetch profile, settings, donations
   const { data: profile } = await supabase.from('profile').select('*').eq('id', 1).single();
   const { data: settings } = await supabase.from('settings').select('*').eq('id', 1).single();
-  const { data: donations } = await supabase
-    .from('donations')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const { data: donations } = await supabase.from('donations').select('*').order('created_at', { ascending: false });
 
   return (
     <div className="min-h-screen bg-gray-500 p-8">
@@ -26,52 +24,41 @@ export default async function AdminDashboard() {
           <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
           <p className="mb-8">Welcome back, {user.email}</p>
 
-          {/* Edit Profile with File Upload */}
+          {/* Profile Form */}
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Edit Profile</h2>
-            <form  action="/api/admin/update-profile"method="POST" encType="multipart/form-data" className="space-y-6 max-w-2xl">
-              <div>
-                <label className="block font-medium mb-2">Name <span className="text-red-500">*</span></label>
-                <input name="name" defaultValue={profile?.name} className="w-full p-3 border rounded" required />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-2">Bio (optional)</label>
-                <input name="bio" defaultValue={profile?.bio} className="w-full p-3 border rounded" />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-2">About (optional)</label>
-                <textarea name="about" defaultValue={profile?.about} rows={5} className="w-full p-3 border rounded" />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-2">Profile Picture (upload new or leave blank to keep current)</label>
-                <input type="file" name="profile_pic" accept="image/*" className="w-full p-3 border rounded file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
-                <p className="text-sm text-gray-600 mt-2">Current: {profile?.profile_pic ? 'Uploaded' : 'None'}</p>
-              </div>
-
-              <button type="submit" className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">
-                Save Profile
-              </button>
-            </form>
+            <ProfileForm profile={profile} />
           </div>
 
-          {/* Change Price */}
+          {/* Price Update Form */}
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Price Settings</h2>
-            <form action="/api/admin/update-price" method="post" className="flex items-end gap-4 max-w-md">
+            <form
+              action="/api/admin/update-price"
+              method="post"
+              className="flex items-end gap-4 max-w-md"
+            >
               <div className="flex-1">
                 <label className="block font-medium mb-2">Price per cup (Rs)</label>
-                <input name="price" type="number" defaultValue={settings?.price_per_cup || 50} min="1" className="w-full p-3 border rounded" required />
+                <input
+                  name="price"
+                  type="number"
+                  defaultValue={settings?.price_per_cup || 50}
+                  min="1"
+                  className="w-full p-3 border rounded"
+                  required
+                />
               </div>
-              <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700">
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700"
+              >
                 Update Price
               </button>
             </form>
           </div>
 
-          {/* Donations List */}
+          {/* Donations Table */}
           <div>
             <h2 className="text-2xl font-bold mb-6">All Donations ({donations?.length || 0})</h2>
             {donations && donations.length > 0 ? (
@@ -106,7 +93,10 @@ export default async function AdminDashboard() {
 
           {/* Logout */}
           <form action="/api/auth/logout" method="post" className="mt-12">
-            <button type="submit" className="bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700">
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700"
+            >
               Logout
             </button>
           </form>
