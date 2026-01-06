@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
   const signature = CryptoJS.enc.Base64.stringify(hash);
 
   const success_url = process.env.NODE_ENV === 'production' 
-    ? 'https://your-domain.com/success' 
+    ? 'https://tea-lake.vercel.app/success' 
     : 'http://localhost:3000/success';
   const failure_url = process.env.NODE_ENV === 'production' 
-    ? 'https://your-domain.com' 
+    ? 'https://tea-lake.vercel.app' 
     : 'http://localhost:3000';
 
   return NextResponse.json({
