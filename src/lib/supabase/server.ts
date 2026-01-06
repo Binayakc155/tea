@@ -16,14 +16,14 @@ export const createServerSupabaseClient = async () => {
         },
         set(name: string, value: string, options: any) {
           try {
-            cookieStore.set(name, value, options);
+            cookieStore.set({name, value, ...options});
           } catch (error) {
             // Ignore errors in server components
           }
         },
         remove(name: string, options: any) {
           try {
-            cookieStore.delete(name, options);
+            cookieStore.delete({name, ...options});
           } catch (error) {
             // Ignore errors in server components
           }
