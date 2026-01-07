@@ -2,18 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import CryptoJS from 'crypto-js';
 
 export async function POST(request: NextRequest) {
+  const merchantCode = process.env.ESEWA_MERCHANT_CODE;
+  const merchantSecret = process.env.ESEWA_MERCHANT_SECRET;
+
+  if (!merchantCode || !merchantSecret) {
+    return NextResponse.json(
+      { error: 'Merchant credentials not configured' },
+      { status: 500 }
+    );
+  }
+
   const { quantity } = await request.json();
   const basePrice = 50;
-  const amount = (quantity * basePrice).toString(); // e.g., 5 * 50 = 250
+  const amount = (quantity * basePrice).toString();
   const tax_amount = "0";
   const total_amount = amount;
-  const transaction_uuid = crypto.randomUUID(); // Node.js crypto
-  const product_code = "EPAYTEST";
+  const transaction_uuid = crypto.randomUUID();
+  const product_code = merchantCode;
 
   const message = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
-  const secret = "8gBm/:&EnhH.1/q"; // Test secret – safe on server
-
-  const hash = CryptoJS.HmacSHA256(message, secret);
+  const hash = CryptoJS.HmacSHA256(message, merchantSecret);
   const signature = CryptoJS.enc.Base64.stringify(hash);
 
   const success_url = process.env.NODE_ENV === 'production' 
