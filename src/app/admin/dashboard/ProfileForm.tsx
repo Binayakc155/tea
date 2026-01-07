@@ -91,7 +91,7 @@ export default function ProfileForm({ profile }: any) {
           name="about"
           defaultValue={profile?.about}
           rows={5}
-          className="w-full p-3 border rounded"S
+          className="w-full p-3 border rounded"
         />
       </div>
 
