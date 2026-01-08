@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 
 type ProfileUpdate = {
   name: string;
@@ -79,6 +80,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to update profile: ' + error.message }, { status: 500 });
     }
 
+    // Refresh the dashboard page data
+    revalidatePath('/admin/dashboard');
     return NextResponse.json({ success: true, message: 'Profile updated!' });
   } catch (err) {
     console.error('Server error:', err);

@@ -3,6 +3,10 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import ProfileForm from './ProfileForm'; // We'll create this client component next
 
+// Force dynamic rendering and disable caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminDashboard() {
   const supabase = await createServerSupabaseClient();
 

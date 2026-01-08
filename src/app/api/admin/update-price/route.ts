@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient();
@@ -19,5 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to update price' }, { status: 500 });
   }
 
-  return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+  // Refresh the dashboard page data
+  revalidatePath('/admin/dashboard');
+  return NextResponse.redirect(new URL('/admin/dashboard', request.url), 303);
 }
