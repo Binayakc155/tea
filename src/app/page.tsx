@@ -58,6 +58,19 @@ export default function Home() {
     time: string;
   }>>([]);
 
+  // Profile data from Supabase
+  const [profile, setProfile] = useState<{
+    name: string;
+    bio: string | null;
+    about: string | null;
+    profile_pic: string | null;
+  }>({
+    name: 'Binaya K.C.',
+    bio: null,
+    about: 'CS student',
+    profile_pic: '/profilee.jpg',
+  });
+
   // Form state
   const [quantity, setQuantity] = useState(1);
   const [senderName, setSenderName] = useState('');
@@ -66,12 +79,43 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [nameError, setNameError] = useState(false);
 
-  const basePrice = 50;
+  const [basePrice, setBasePrice] = useState<number>(50);
   const totalPrice = quantity * basePrice;
 
   // Fetch tea count and recent supporters from Supabase on load
   useEffect(() => {
     async function fetchData() {
+      // Fetch profile
+      const { data: profileData, error: profileError } = await supabaseClient
+        .from('profile')
+        .select('name, bio, about, profile_pic')
+        .eq('id', 1)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      } else if (profileData) {
+        setProfile({
+          name: profileData.name || 'Binaya K.C.',
+          bio: profileData.bio ?? null,
+          about: profileData.about ?? null,
+          profile_pic: profileData.profile_pic || '/profilee.jpg',
+        });
+      }
+
+      // Fetch price per cup
+      const { data: settingsData, error: settingsError } = await supabaseClient
+        .from('settings')
+        .select('price_per_cup')
+        .eq('id', 1)
+        .single();
+
+      if (settingsError) {
+        console.error('Error fetching price:', settingsError);
+      } else if (settingsData?.price_per_cup) {
+        setBasePrice(settingsData.price_per_cup);
+      }
+
       // Fetch total tea count (sum of quantity)
       const { data: donationsData, error: countError } = await supabaseClient
         .from('donations')
@@ -224,8 +268,8 @@ export default function Home() {
             {/* Profile Image */}
             <div className="relative w-36 h-36 flex-shrink-0"> {/* Fixed image size */}
               <Image
-                src="/profilee.jpg"
-                alt="Binaya KC"
+                src={profile.profile_pic || '/profilee.jpg'}
+                alt={profile.name || 'Profile photo'}
                 fill
                 className="rounded-full object-cover border-4 border-white dark:border-gray-900 shadow-md"
               />
@@ -234,9 +278,9 @@ export default function Home() {
             {/* Name & bio */}
             <div>
               <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                Binaya K.C. <span className="text-blue-500"></span>
+                {profile.name || 'Binaya K.C.'} <span className="text-blue-500"></span>
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400"></p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{profile.bio || ''}</p>
             </div>
 
             {/* Social icons */}
@@ -288,7 +332,7 @@ export default function Home() {
             <Card className="bg-white dark:bg-gray-800">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">About</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">CS student </p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{profile.about || 'CS student'}</p>
               </CardContent>
             </Card>
 
@@ -316,7 +360,7 @@ export default function Home() {
             <Card className="shadow-xl bg-white dark:bg-gray-800">
               <CardHeader className="text-center">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                  Buy tea for Binaya k.c. ☕
+                  Buy tea for {profile.name || 'Binaya K.C.'} ☕
                 </h2>
               </CardHeader>
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import CryptoJS from 'crypto-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   const merchantCode = process.env.ESEWA_MERCHANT_CODE;
@@ -13,7 +14,26 @@ export async function POST(request: NextRequest) {
   }
 
   const { quantity } = await request.json();
-  const basePrice = 50;
+
+  // Fetch current price from settings (fallback to 50 if missing)
+  let basePrice = 50;
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: settings, error: settingsError } = await supabase
+      .from('settings')
+      .select('price_per_cup')
+      .eq('id', 1)
+      .single();
+
+    if (settingsError) {
+      console.error('Settings fetch error:', settingsError);
+    } else if (settings?.price_per_cup) {
+      basePrice = settings.price_per_cup;
+    }
+  } catch (err) {
+    console.error('Settings fetch failure:', err);
+  }
+
   const amount = (quantity * basePrice).toString();
   const tax_amount = "0";
   const total_amount = amount;
