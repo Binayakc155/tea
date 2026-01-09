@@ -280,7 +280,7 @@ export default function Home() {
               <h1 className="text-3xl md:text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
                 {profile.name || 'Binaya K.C.'}
               </h1>
-              <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 mb-4">{profile.bio || 'CS students'}</p>
+              <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 mb-4">{profile.bio }</p>
 
               {/* Social icons */}
               <div className="flex gap-4">
@@ -348,7 +348,7 @@ export default function Home() {
               </CardHeader>
               <CardContent className="space-y-3 max-h-96 overflow-y-auto">
                 {recentSupporters.length === 0 ? (
-                  <p className="text-center text-gray-500 dark:text-gray-400 text-sm py-8">Be the first to support! ☕</p>
+                  <p className="text-center text-gray-500 dark:text-gray-400 text-sm py-8">Be the first to support! </p>
                 ) : (
                   recentSupporters.map((sup, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
