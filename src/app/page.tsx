@@ -12,7 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Moon, Sun } from 'lucide-react'; // Add this import for theme icons (install lucide-react if needed)
+import { Moon, Sun, Facebook, Twitter, Linkedin } from 'lucide-react'; // Add this import for theme icons (install lucide-react if needed)
 import { supabaseClient } from '@/lib/supabase/client'; // Add this import!
 import Link from 'next/link';
 
@@ -220,30 +220,30 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
 
       {/* Top Navbar */}
-      <nav className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+      <nav className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
           {/* Logo */}
-          <div className="flex items-center gap-2 font-bold text-gray-900 dark:text-gray-100">
-            <span className="text-xl">☕</span>
-            <span>Buy-Tea</span>
+          <div className="flex items-center gap-3 font-bold text-gray-900 dark:text-white text-lg">
+            <span className="text-2xl">☕</span>
+            <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Buy Tea</span>
           </div>
 
           {/* Theme Toggle + Login */}
           <div className="flex items-center gap-4">
             <button
               onClick={toggleTheme}
-              className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
             >
               {theme === 'light' ? <Moon className="w-5 h-5 text-gray-700" /> : <Sun className="w-5 h-5 text-gray-300" />}
             </button>
 
             <Link href="/admin/login">
-              <button className="text-sm font-medium border px-4 py-1.5 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600">
-                Admin Login
+              <button className="text-sm font-semibold px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-blue-600 text-white hover:shadow-lg transition-all duration-200 hover:scale-105">
+                Admin
               </button>
             </Link>
           </div>
@@ -254,66 +254,70 @@ export default function Home() {
 
       {/* Cover */}
       <div
-        className="h-40 bg-cover bg-center"
+        className="h-48 md:h-56 bg-cover bg-center relative overflow-hidden"
         style={{ backgroundImage: "url('/cover.jpg')" }}
       >
-        <div className="h-full w-full bg-black/30" />
+        <div className="h-full w-full bg-gradient-to-b from-black/20 to-black/40" />
       </div>
 
-      {/* Profile strip */}
-      <div className="bg-gray-100 dark:bg-gray-800">
-        <div className="px-6 relative">
-          <div className="flex items-center gap-4 -mt-16 pb-6 h-16"> {/* Container height fixed */}
+      {/* Profile Section */}
+      <div className="bg-white dark:bg-slate-800 shadow-md">
+        <div className="max-w-7xl mx-auto px-6 relative">
+          <div className="flex flex-col md:flex-row items-start md:items-end gap-6 -mt-20 pb-8">
 
             {/* Profile Image */}
-            <div className="relative w-36 h-36 flex-shrink-0"> {/* Fixed image size */}
+            <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
               <Image
                 src={profile.profile_pic || '/profilee.jpg'}
                 alt={profile.name || 'Profile photo'}
                 fill
-                className="rounded-full object-cover border-4 border-white dark:border-gray-900 shadow-md"
+                className="rounded-2xl object-cover border-4 border-white dark:border-slate-800 shadow-xl"
               />
             </div>
 
-            {/* Name & bio */}
-            <div>
-              <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                {profile.name || 'Binaya K.C.'} <span className="text-blue-500"></span>
+            {/* Name, Bio & Social */}
+            <div className="flex-1 mt-6 md:mt-10">
+              <h1 className="text-3xl md:text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
+                {profile.name || 'Binaya K.C.'}
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{profile.bio || ''}</p>
+              <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 mb-4">{profile.bio || 'CS students'}</p>
+
+              {/* Social icons */}
+              <div className="flex gap-4">
+                <a
+                  href="https://www.facebook.com/binaya.kc.315"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+                >
+                  <Facebook size={20} />
+                </a>
+
+                <a
+                  href="https://x.com/YrWNIQdzcbMDKU7"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
+                >
+                  <Twitter size={20} />
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/binaya-kc-748647350"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+                >
+                  <Linkedin size={20} />
+                </a>
+              </div>
             </div>
 
-            {/* Social icons */}
-            <div className="ml-auto flex gap-4 text-gray-500 dark:text-gray-400 text-lg">
-              <a
-                href="https://www.facebook.com/binaya.kc.315"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-600 dark:hover:text-blue-400"
-              >
-                ❤️
-              </a>
-
-              <a
-                href="https://x.com/YrWNIQdzcbMDKU7"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="m-0 social-icone si-small h-bg-x-twitter"
-
-              >
-                😂
-                <i className="fa-brands bi-globe"></i>
-                <i className="fa-brands bi-globe"></i>
-              </a>
-
-              <a
-                href="https://www.linkedin.com/in/binaya-kc-748647350"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-700 dark:hover:text-blue-500"
-              >
-                💼
-              </a>
+            {/* Tea Counter */}
+            <div className="text-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-slate-700 dark:to-slate-800 rounded-2xl p-6 min-w-[150px]">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Total Teas</p>
+              <p className="text-4xl font-bold text-green-600 dark:text-green-400">{teaCount}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">☕ cups</p>
             </div>
 
           </div>
@@ -321,33 +325,42 @@ export default function Home() {
       </div>
 
 
-
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="grid md:grid-cols-3 gap-10">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid md:grid-cols-3 gap-8">
 
-          {/* Left column */}
-          <div className="mt-6 space-y-6">
+          {/* Left Sidebar */}
+          <div className="space-y-6">
 
-            <Card className="bg-white dark:bg-gray-800">
+            {/* About Card */}
+            <Card className="bg-white dark:bg-slate-800 border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">About</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{profile.about || 'CS student'}</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-3">About</h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{profile.about || 'CS student'}</p>
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800">
-              <CardHeader className="text-center">
-                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">Recent supports</h2>
+            {/* Recent Supporters Card */}
+            <Card className="bg-white dark:bg-slate-800 border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <CardHeader className="pb-4">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Supporters</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Last 10 supporters</p>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 max-h-96 overflow-y-auto">
                 {recentSupporters.length === 0 ? (
-                  <p className="text-center text-gray-500 dark:text-gray-400 text-sm">No supports yet</p>
+                  <p className="text-center text-gray-500 dark:text-gray-400 text-sm py-8">Be the first to support! ☕</p>
                 ) : (
                   recentSupporters.map((sup, i) => (
-                    <p key={i} className="text-sm text-gray-600 dark:text-gray-300">
-                      ☕ {sup.name} bought {sup.quantity}
-                    </p>
+                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">☕</span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{sup.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{sup.time}</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-green-600 dark:text-green-400">×{sup.quantity}</span>
+                    </div>
                   ))
                 )}
               </CardContent>
@@ -355,33 +368,36 @@ export default function Home() {
 
           </div>
 
-          {/* Right column */}
+          {/* Right Content - Buy Tea Card */}
           <div className="md:col-span-2">
-            <Card className="shadow-xl bg-white dark:bg-gray-800">
-              <CardHeader className="text-center">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                  Buy tea for {profile.name || 'Binaya K.C.'} ☕
+            <Card className="shadow-2xl bg-white dark:bg-slate-800 border-0">
+              <CardHeader className="text-center pb-8">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                  Buy Tea ☕
                 </h2>
+                <p className="text-gray-600 dark:text-gray-400">Support {profile.name || 'the creator'} with a cup of tea</p>
               </CardHeader>
 
               <CardContent className="space-y-8">
 
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8">
-                  <div className="flex items-center justify-center gap-8">
-                    <div className="text-6xl">☕</div>
-                    <div className="text-4xl font-bold text-gray-500 dark:text-gray-400">×</div>
+                {/* Tea Quantity Selector */}
+                <div className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 rounded-2xl p-8">
+                  <p className="text-center text-sm font-semibold text-gray-600 dark:text-gray-400 mb-6">Select quantity</p>
+                  <div className="flex items-center justify-center gap-6 flex-wrap">
+                    <div className="text-5xl">☕</div>
+                    <div className="text-3xl font-bold text-gray-400 dark:text-gray-500">×</div>
 
                     <ToggleGroup
                       type="single"
                       value={quantity.toString()}
                       onValueChange={(v) => v && setQuantity(parseInt(v))}
-                      className="gap-4"
+                      className="gap-3"
                     >
                       {[1, 2, 5, 10].map((num) => (
                         <ToggleGroupItem
                           key={num}
                           value={num.toString()}
-                          className="w-16 h-16 rounded-full text-xl font-bold border-2 data-[state=on]:bg-[#60BB46] data-[state=on]:text-white dark:border-gray-600"
+                          className="w-14 h-14 rounded-full text-lg font-bold border-2 border-gray-300 dark:border-slate-500 text-gray-700 dark:text-gray-300 data-[state=on]:bg-gradient-to-r data-[state=on]:from-green-500 data-[state=on]:to-blue-600 data-[state=on]:text-white data-[state=on]:border-0 transition-all hover:scale-105"
                         >
                           {num}
                         </ToggleGroupItem>
@@ -390,9 +406,11 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* Form Fields */}
                 <div className="space-y-6">
 
-                  <div className="flex items-center justify-end gap-2">
+                  {/* Anonymous Checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
                     <Checkbox
                       id="anonymous"
                       checked={isAnonymous}
@@ -402,43 +420,66 @@ export default function Home() {
                       }}
                       className="dark:border-gray-600"
                     />
-                    < Label htmlFor="anonymous" className="text-gray-700 dark:text-gray-300">Make me anonymous</Label>
+                    <Label htmlFor="anonymous" className="text-gray-700 dark:text-gray-300 font-medium cursor-pointer">
+                      Keep me anonymous
+                    </Label>
                   </div>
 
+                  {/* Name Input */}
                   <div className="space-y-2">
-                    <Label className="text-gray-700 dark:text-gray-300">
-                      Full Name {!isAnonymous && <span className="text-red-500">*</span>}
+                    <Label className="text-gray-800 dark:text-gray-200 font-semibold">
+                      Your Name {!isAnonymous && <span className="text-red-500">*</span>}
                     </Label>
                     <Input
-                      placeholder="Full Name"
+                      placeholder="Enter your name"
                       value={senderName}
                       onChange={(e) => {
                         setSenderName(e.target.value);
                         setNameError(false);
                       }}
                       disabled={isAnonymous}
-                      className={`${nameError ? 'border-red-500' : ''} dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600`}
+                      className={`py-3 rounded-lg border-2 transition-all ${
+                        nameError
+                          ? 'border-red-500 dark:border-red-500'
+                          : 'border-gray-300 dark:border-slate-600 focus:border-green-500 dark:focus:border-green-500'
+                      } dark:bg-slate-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed`}
                     />
                   </div>
 
+                  {/* Message Input */}
                   <div className="space-y-2">
-                    <Label className="text-gray-700 dark:text-gray-300">Message for creator</Label>
+                    <Label className="text-gray-800 dark:text-gray-200 font-semibold">
+                      Message (Optional)
+                    </Label>
                     <Input
                       placeholder="Say something nice..."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                      maxLength={150}
+                      className="py-3 rounded-lg border-2 border-gray-300 dark:border-slate-600 focus:border-green-500 dark:focus:border-green-500 dark:bg-slate-700 dark:text-gray-200 transition-all"
                     />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 text-right">{message.length}/150</p>
                   </div>
 
-                  <Button
-                    size="lg"
-                    onClick={handleBuyTea}
-                    disabled={loading}
-                    className="w-full py-6 text-xl font-bold bg-[#60BB46] hover:bg-[#4e9a38]"
-                  >
-                    {loading ? 'Processing...' : `Pay Rs ${totalPrice}`}
-                  </Button>
+                  {/* Pay Button */}
+                  <div className="pt-4 space-y-3">
+                    <Button
+                      size="lg"
+                      onClick={handleBuyTea}
+                      disabled={loading}
+                      className="w-full py-6 text-lg font-bold bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                          Processing...
+                        </span>
+                      ) : (
+                        `Pay Rs ${totalPrice} • ${quantity} ${quantity === 1 ? 'Tea' : 'Teas'}`
+                      )}
+                    </Button>
+                    <p className="text-xs text-center text-gray-500 dark:text-gray-400">Secured by eSewa Payment</p>
+                  </div>
 
                 </div>
               </CardContent>
