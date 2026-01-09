@@ -261,9 +261,9 @@ export default function Home() {
       </div>
 
       {/* Profile Section */}
-      <div className="bg-white dark:bg-slate-800 shadow-md">
+      <div className="bg-white dark:bg-slate-800 shadow-md pt-6">
         <div className="max-w-7xl mx-auto px-6 relative">
-          <div className="flex flex-col md:flex-row items-start md:items-end gap-6 -mt-20 pb-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 pb-8">
 
             {/* Profile Image */}
             <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
@@ -276,11 +276,12 @@ export default function Home() {
             </div>
 
             {/* Name, Bio & Social */}
-            <div className="flex-1 mt-6 md:mt-10">
-              <h1 className="text-3xl md:text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 text-left">
                 {profile.name || 'Binaya K.C.'}
               </h1>
-              <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 mb-4">{profile.bio }</p>
+              <div className="h-1 w-24 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mb-4"></div>
+              <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-6 text-left">{profile.bio }</p>
 
               {/* Social icons */}
               <div className="flex gap-4">
@@ -315,9 +316,9 @@ export default function Home() {
 
             {/* Tea Counter */}
             <div className="text-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-slate-700 dark:to-slate-800 rounded-2xl p-6 min-w-[150px]">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Total Teas</p>
-              <p className="text-4xl font-bold text-green-600 dark:text-green-400">{teaCount}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">☕ cups</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">Total Teas</p>
+              <p className="text-4xl font-bold text-green-700 dark:text-green-400">{teaCount}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-500 mt-2">☕ cups</p>
             </div>
 
           </div>
@@ -335,20 +336,20 @@ export default function Home() {
             {/* About Card */}
             <Card className="bg-white dark:bg-slate-800 border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6">
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-3">About</h3>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{profile.about || 'CS student'}</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-3 text-left">About</h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-left">{profile.about || 'CS student'}</p>
               </CardContent>
             </Card>
 
             {/* Recent Supporters Card */}
             <Card className="bg-white dark:bg-slate-800 border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="pb-4">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Supporters</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Last 10 supporters</p>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white text-left">Recent Supporters</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-left">Last 10 supporters</p>
               </CardHeader>
               <CardContent className="space-y-3 max-h-96 overflow-y-auto">
                 {recentSupporters.length === 0 ? (
-                  <p className="text-center text-gray-500 dark:text-gray-400 text-sm py-8">Be the first to support! </p>
+                  <p className="text-center text-gray-600 dark:text-gray-400 text-sm py-8">Be the first to support! ☕</p>
                 ) : (
                   recentSupporters.map((sup, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
@@ -371,18 +372,18 @@ export default function Home() {
           {/* Right Content - Buy Tea Card */}
           <div className="md:col-span-2">
             <Card className="shadow-2xl bg-white dark:bg-slate-800 border-0">
-              <CardHeader className="text-center pb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              <CardHeader className="pb-8">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 text-center">
                   Buy Tea ☕
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">Support {profile.name || 'the creator'} with a cup of tea</p>
+                <p className="text-gray-700 dark:text-gray-400 text-center">Support {profile.name || 'the creator'} with a cup of tea</p>
               </CardHeader>
 
               <CardContent className="space-y-8">
 
                 {/* Tea Quantity Selector */}
                 <div className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 rounded-2xl p-8">
-                  <p className="text-center text-sm font-semibold text-gray-600 dark:text-gray-400 mb-6">Select quantity</p>
+                  <p className="text-center text-sm font-semibold text-gray-700 dark:text-gray-400 mb-6">Select quantity</p>
                   <div className="flex items-center justify-center gap-6 flex-wrap">
                     <div className="text-5xl">☕</div>
                     <div className="text-3xl font-bold text-gray-400 dark:text-gray-500">×</div>
@@ -427,7 +428,7 @@ export default function Home() {
 
                   {/* Name Input */}
                   <div className="space-y-2">
-                    <Label className="text-gray-800 dark:text-gray-200 font-semibold">
+                    <Label className="text-gray-800 dark:text-gray-200 font-semibold text-left block">
                       Your Name {!isAnonymous && <span className="text-red-500">*</span>}
                     </Label>
                     <Input
@@ -448,7 +449,7 @@ export default function Home() {
 
                   {/* Message Input */}
                   <div className="space-y-2">
-                    <Label className="text-gray-800 dark:text-gray-200 font-semibold">
+                    <Label className="text-gray-800 dark:text-gray-200 font-semibold text-left block">
                       Message (Optional)
                     </Label>
                     <Input
@@ -458,7 +459,7 @@ export default function Home() {
                       maxLength={150}
                       className="py-3 rounded-lg border-2 border-gray-300 dark:border-slate-600 focus:border-green-500 dark:focus:border-green-500 dark:bg-slate-700 dark:text-gray-200 transition-all"
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 text-right">{message.length}/150</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 text-left">{message.length}/150</p>
                   </div>
 
                   {/* Pay Button */}
