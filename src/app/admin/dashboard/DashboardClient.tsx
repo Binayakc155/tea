@@ -58,7 +58,7 @@ export default function DashboardClient({ user, profile, settings, donations }: 
             </button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">☕</div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Buy Tea Admin</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Manage your profile</h1>
             </div>
           </div>
 
@@ -148,8 +148,8 @@ export default function DashboardClient({ user, profile, settings, donations }: 
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard Overview</h2>
-                  <p className="text-gray-600 dark:text-gray-400">Welcome to your admin dashboard</p>
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Overview</h2>
+                  <p className="text-gray-600 dark:text-gray-400"></p>
                 </div>
 
                 {/* Statistics Cards */}
