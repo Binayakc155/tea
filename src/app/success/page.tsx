@@ -1,14 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { supabaseClient } from '@/lib/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import { CheckCircle, Home } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Success() {
-  const router = useRouter();
+  const [purchaseData, setPurchaseData] = useState<any>(null);
 
   useEffect(() => {
     const saveDonation = async () => {
@@ -16,22 +14,15 @@ export default function Success() {
       if (!pending) return;
 
       const purchase = JSON.parse(pending);
+      setPurchaseData(purchase);
 
-      const { error } = await supabaseClient.from('donations').insert({
+      await supabaseClient.from('donations').insert({
         quantity: purchase.quantity,
         name: purchase.name,
         message: purchase.message || null,
-        amount: purchase.quantity * 50 , // Rs to paisa
+        amount: purchase.quantity * 50 * 100,
       });
 
-      if (error) {
-        console.error('Failed to save donation:', error);
-        // Optional: show error to user
-      } else {
-        console.log('Donation saved successfully!');
-      }
-
-      // Clean up
       localStorage.removeItem('lastPurchase');
     };
 
@@ -39,39 +30,53 @@ export default function Success() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-6">
-      <Card className="w-full max-w-md shadow-2xl text-center">
-        <CardHeader className="pb-8">
-          <div className="mx-auto w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mb-6">
-            <span className="text-6xl">☕</span>
-          </div>
-          <CardTitle className="text-4xl font-bold text-green-800">
-            Thank You! ❤️
-          </CardTitle>
-          <CardDescription className="text-xl mt-4 text-green-700">
-            Your tea is brewing... I truly appreciate your support!
-          </CardDescription>
-        </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-blue-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-green-500 to-green-600 px-8 py-12 text-center">
+          <CheckCircle className="w-14 h-14 text-white mx-auto mb-4" strokeWidth={1.5} />
+          <h1 className="text-4xl font-bold text-white mb-2">Success!</h1>
+          <p className="text-green-100 text-lg">Thank you for your support</p>
+        </div>
 
-        <CardContent className="space-y-6">
-          <p className="text-lg text-gray-700">
-            Thanks to kind people like you, I can keep creating.
+        {/* Content */}
+        <div className="px-8 py-10 space-y-6">
+          {purchaseData && (
+            <>
+              <div className="text-center py-6 bg-green-50 dark:bg-slate-700/50 rounded-lg">
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">You Sent</p>
+                <p className="text-5xl font-bold text-green-600 dark:text-green-400">
+                  {purchaseData.quantity} ☕
+                </p>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Name:</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{purchaseData.name}</span>
+                </div>
+                {purchaseData.message && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Message:</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{purchaseData.message}</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
+            Your donation has been recorded. Thank you for supporting this creator!
           </p>
-          <div className="py-6">
-            <p className="text-6xl font-bold text-green-600 animate-pulse">
-              ☕
-            </p>
-          </div>
-        </CardContent>
 
-        <CardContent>
           <Link href="/">
-            <Button size="lg" className="w-full text-lg">
-              Back Home
-            </Button>
+            <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+              <Home size={20} />
+              Back to Home
+            </button>
           </Link>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
