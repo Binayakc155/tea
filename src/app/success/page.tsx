@@ -66,7 +66,7 @@ export default function Success() {
           )}
 
           <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
-            Your donation has been recorded. Thank you for supporting this creator!
+            support more 😂
           </p>
 
           <Link href="/">
