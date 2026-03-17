@@ -86,12 +86,11 @@ src/
 │       ├── input.tsx
 │       ├── card.tsx
 │       └── ...
-├── lib/
-│   ├── utils.ts              # Utility functions
-│   └── supabase/             # Supabase client setup
-│       ├── client.ts         # Client-side Supabase
-│       └── server.ts         # Server-side Supabase
-└── types/                    # TypeScript type definitions
+└── lib/
+    ├── utils.ts              # Utility functions
+    └── supabase/             # Supabase client setup
+        ├── client.ts         # Client-side Supabase
+        └── server.ts         # Server-side Supabase
 ```
 
 ## Available Scripts
